@@ -299,7 +299,7 @@ class FastRCNN(object):
 
             # loss
             with tf.variable_scope('fast_rcnn_classification_loss'):
-                fast_rcnn_classification_loss = slim.losses.softmax_cross_entropy(logits=minibatch_scores,
+                fast_rcnn_classification_loss = tf.losses.softmax_cross_entropy(logits=minibatch_scores,
                                                                                   onehot_labels=minibatch_label_one_hot)
 
             with tf.variable_scope('fast_rcnn_location_loss'):
@@ -307,7 +307,7 @@ class FastRCNN(object):
                                                                   gtboxes=minibatch_encode_gtboxes,
                                                                   object_weights=minibatch_object_mask,
                                                                   classes_weights=class_weights)
-                slim.losses.add_loss(fast_rcnn_location_loss)
+                tf.losses.add_loss(fast_rcnn_location_loss)
 
             return fast_rcnn_location_loss, fast_rcnn_classification_loss
 

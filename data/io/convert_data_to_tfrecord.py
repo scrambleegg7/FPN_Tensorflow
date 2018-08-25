@@ -7,8 +7,12 @@ import numpy as np
 import tensorflow as tf
 import glob
 import cv2
+import os 
+
 from help_utils.tools import *
 from libs.label_name_dict.label_dict import *
+
+FLAGS = tf.app.flags.FLAGS
 
 tf.app.flags.DEFINE_string('VOC_dir', None, 'Voc dir')
 tf.app.flags.DEFINE_string('xml_dir', 'Annotations', 'xml dir')
@@ -17,7 +21,6 @@ tf.app.flags.DEFINE_string('save_name', 'train', 'save name')
 tf.app.flags.DEFINE_string('save_dir', cfgs.ROOT_PATH + '/data/tfrecords/', 'save name')
 tf.app.flags.DEFINE_string('img_format', '.jpg', 'format of image')
 tf.app.flags.DEFINE_string('dataset', 'car', 'dataset')
-FLAGS = tf.app.flags.FLAGS
 
 
 def _int64_feature(value):
@@ -67,21 +70,27 @@ def read_xml_gtbox_and_label(xml_path):
                     box_list.append(tmp_box)
 
     gtbox_label = np.array(box_list, dtype=np.int32)  # [x1, y1. x2, y2, label]
+    success_flg = True
+    if gtbox_label.shape[0] == 0:
+        #print("gtbox_label shape : ",gtbox_label.shape)
+        success_flg = False
+        return False,False,False,False
 
     xmin, ymin, xmax, ymax, label = gtbox_label[:, 0], gtbox_label[:, 1], gtbox_label[:, 2], gtbox_label[:, 3], \
                                     gtbox_label[:, 4]
 
     gtbox_label = np.transpose(np.stack([ymin, xmin, ymax, xmax, label], axis=0))  # [ymin, xmin, ymax, xmax, label]
+    print(gtbox_label)
 
-    return img_height, img_width, gtbox_label
+    return img_height, img_width, gtbox_label, success_flg
 
 
 def convert_pascal_to_tfrecord():
 
-    xml_path = FLAGS.VOC_dir + FLAGS.xml_dir
-    image_path = FLAGS.VOC_dir + FLAGS.image_dir
-    save_path = FLAGS.save_dir + FLAGS.dataset + '_' + FLAGS.save_name + '.tfrecord'
-    mkdir(FLAGS.save_dir)
+    xml_path = "/Users/donchan/Documents/Miyuki/ssd_prescription/VOCdevkit/myVOC/Annotations"
+    image_path = "/Users/donchan/Documents/Miyuki/ssd_prescription/VOCdevkit/myVOC/JPEGImages"
+    save_path = os.path.join("./records", 'annot.tfrecord' )
+    #mkdir(FLAGS.save_dir)
 
     # writer_options = tf.python_io.TFRecordOptions(tf.python_io.TFRecordCompressionType.ZLIB)
     # writer = tf.python_io.TFRecordWriter(path=save_path, options=writer_options)
@@ -98,14 +107,16 @@ def convert_pascal_to_tfrecord():
             print('{} is not exist!'.format(img_path))
             continue
 
-        img_height, img_width, gtbox_label = read_xml_gtbox_and_label(xml)
+        img_height, img_width, gtbox_label, success_flg = read_xml_gtbox_and_label(xml)
+        if success_flg == False:
+            continue
 
         # img = np.array(Image.open(img_path))
         img = cv2.imread(img_path)
 
         feature = tf.train.Features(feature={
             # maybe do not need encode() in linux
-            'img_name': _bytes_feature(img_name),
+            #'img_name': _bytes_feature(img_name),
             'img_height': _int64_feature(img_height),
             'img_width': _int64_feature(img_width),
             'img': _bytes_feature(img.tostring()),

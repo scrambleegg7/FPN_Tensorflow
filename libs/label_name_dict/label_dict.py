@@ -13,10 +13,11 @@ elif cfgs.DATASET_NAME == 'SSDD':
         'back_ground': 0,
         "ship": 1
     }
-elif cfgs.DATASET_NAME == 'airplane':
+elif cfgs.DATASET_NAME == 'Prescription':
     NAME_LABEL_MAP = {
         'back_ground': 0,
-        "airplane": 1
+        "Prescription": 1,
+        "None":2
     }
 elif cfgs.DATASET_NAME == 'nwpu':
     NAME_LABEL_MAP = {

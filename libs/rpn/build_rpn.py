@@ -377,10 +377,13 @@ class RPN(object):
                 location_loss = losses.l1_smooth_losses(predict_boxes=minibatch_encode_boxes,
                                                         gtboxes=minibatch_encode_gtboxes,
                                                         object_weights=object_mask)
-                slim.losses.add_loss(location_loss)  # add smooth l1 loss to losses collection
+                #slim.losses.add_loss(location_loss)  # add smooth l1 loss to losses collection
+                tf.losses.add_loss(location_loss)  # add smooth l1 loss to losses collection
+                
 
             with tf.variable_scope('rpn_classification_loss'):
-                classification_loss = slim.losses.softmax_cross_entropy(logits=minibatch_boxes_scores,
+                #classification_loss = slim.losses.softmax_cross_entropy(logits=minibatch_boxes_scores,
+                classification_loss = tf.losses.softmax_cross_entropy(logits=minibatch_boxes_scores,
                                                                         onehot_labels=minibatch_labels_one_hot)
 
             return location_loss, classification_loss

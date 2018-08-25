@@ -16,7 +16,7 @@ def roi_visualize(img, img_h, img_w, roi_box, rois):
         normalize_ymax = ymax / img_h
         normalize_xmax = xmax / img_w
 
-        tmp_img = tf.squeeze(img) + tf.constant([103.939, 116.779, 123.68], dtype=tf.float32)
+        tmp_img =  tf.cast(tf.squeeze(img), dtype=tf.float32) + tf.constant([103.939, 116.779, 123.68], dtype=tf.float32)
         tmp_img = tf.cast(tmp_img * 225 / tf.reduce_max(tmp_img), dtype=tf.uint8)
         tmp_img = tf.expand_dims(tmp_img, axis=0)
         target = tf.image.crop_and_resize(tmp_img,
